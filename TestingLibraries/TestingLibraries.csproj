@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+    <PackageReference Include="Syncfusion.DocIO.Net.Core" Version="18.3.0.53" />
+    <PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="18.3.0.53" />
+  </ItemGroup>
+
+
+
+</Project>
