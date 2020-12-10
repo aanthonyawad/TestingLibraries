@@ -35,11 +35,25 @@ namespace TestingLibraries.Controllers
             // seach for word occurences to replace
             TextSelection textSelection = wordDocument.Find("{date}", false, false);
 
+
+
             WTextRange[] textRanges = textSelection.GetRanges();
             foreach (WTextRange textRange in textRanges)
             {
                 textRange.Text = DateTime.UtcNow.ToLongDateString();
             }
+
+
+            //TextSelection adminSignature = wordDocument.Find("{sig_admin}", false, false);
+            //WTextRange signature = textSelection.GetAsOneRange();
+            //signature. = ;
+            ////Adds image to  the paragraph
+            //FileStream imageStream = new FileStream(wwwPath +"/signature.png", FileMode.Open, FileAccess.ReadWrite);
+            //IWPicture picture = signature.OwnerParagraph.AppendPicture(imageStream);
+            ////Sets height and width for the image
+            //picture.Height = 100;
+            //picture.Width = 100;
+            
 
             //opens the doc for rendeering 
             DocIORenderer render = new DocIORenderer();
