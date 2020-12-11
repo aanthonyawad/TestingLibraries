@@ -29,7 +29,7 @@ namespace TestingLibraries.Controllers
             string wwwPath = this.Environment.WebRootPath;
             string contentPath = this.Environment.ContentRootPath;
             // get file and lock it for readandwrite
-            FileStream docStream = new FileStream(wwwPath+ "/SyndicationInterestCertificate.docx", FileMode.Open, FileAccess.ReadWrite,FileShare.ReadWrite);
+            FileStream docStream = new FileStream(wwwPath+ "/MortgageAdministrationAgreement.docx", FileMode.Open, FileAccess.ReadWrite,FileShare.ReadWrite);
 
             WordDocument wordDocument = new WordDocument(docStream, Syncfusion.DocIO.FormatType.Automatic);
             
@@ -66,7 +66,7 @@ namespace TestingLibraries.Controllers
 
 
             //get the paragraph from the parent word document and add the signature to it
-            TextSelection adminSignature = wordDocument.Find("{sig_trustee}", false, false);
+            TextSelection adminSignature = wordDocument.Find("{sig_admin}", false, false);
             WTextRange signature = adminSignature.GetAsOneRange();
             signature.Text = "";
             //Adds image to  the paragraph
@@ -77,7 +77,19 @@ namespace TestingLibraries.Controllers
             picture.Width = 200;
 
 
-            //opens the doc for rendeering 
+            //get the paragraph from the parent word document and add the signature to it
+            TextSelection corpSignature = wordDocument.Find("{sig_corp}", false, false);
+            signature = corpSignature.GetAsOneRange();
+            signature.Text = "";
+            //Adds image to  the paragraph
+            //imageStream = new FileStream(wwwPath + "/signature_2.png", FileMode.Open, FileAccess.Read);
+            IWPicture corpPicture = signature.OwnerParagraph.AppendPicture(imageStream);
+            //Sets height and width for the image
+            corpPicture.Height = 75;
+            corpPicture.Width = 200;
+
+
+            ////opens the doc for rendeering 
             DocIORenderer render = new DocIORenderer();
             render.Settings.ChartRenderingOptions.ImageFormat = ExportImageFormat.Jpeg;
             PdfDocument pdfDocument = render.ConvertToPDF(wordDocument);
@@ -87,7 +99,7 @@ namespace TestingLibraries.Controllers
             //Saves the PDF file
             MemoryStream outputStream = new MemoryStream();
             pdfDocument.Save(outputStream);
-            using (FileStream pdfStream = System.IO.File.Create(@"c:\temp\syndicationInterest.pdf"))
+            using (FileStream pdfStream = System.IO.File.Create(@"c:\temp\mortgageAdmistrationAgreement.pdf"))
             {
                 pdfDocument.Save(pdfStream);
             }
@@ -98,7 +110,7 @@ namespace TestingLibraries.Controllers
             return "converted Word file to pdf...";
         }
 
-        public void changeText(string key,string value,WordDocument wordDocument )
+        private void changeText(string key,string value,WordDocument wordDocument )
         {
             TextSelection keySelection = wordDocument.Find(key, false, false);
             if (keySelection == null) 
