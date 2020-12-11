@@ -29,31 +29,53 @@ namespace TestingLibraries.Controllers
             string wwwPath = this.Environment.WebRootPath;
             string contentPath = this.Environment.ContentRootPath;
             // get file and lock it for readandwrite
-            FileStream docStream = new FileStream(wwwPath+"/document_3_template.docx", FileMode.Open, FileAccess.ReadWrite,FileShare.ReadWrite);
+            FileStream docStream = new FileStream(wwwPath+ "/SyndicationInterestCertificate.docx", FileMode.Open, FileAccess.ReadWrite,FileShare.ReadWrite);
 
             WordDocument wordDocument = new WordDocument(docStream, Syncfusion.DocIO.FormatType.Automatic);
-            // seach for word occurences to replace
-            TextSelection textSelection = wordDocument.Find("{date}", false, false);
-
-
-
-            WTextRange[] textRanges = textSelection.GetRanges();
-            foreach (WTextRange textRange in textRanges)
-            {
-                textRange.Text = DateTime.UtcNow.ToLongDateString();
-            }
-
-
-            //TextSelection adminSignature = wordDocument.Find("{sig_admin}", false, false);
-            //WTextRange signature = textSelection.GetAsOneRange();
-            //signature. = ;
-            ////Adds image to  the paragraph
-            //FileStream imageStream = new FileStream(wwwPath +"/signature.png", FileMode.Open, FileAccess.ReadWrite);
-            //IWPicture picture = signature.OwnerParagraph.AppendPicture(imageStream);
-            ////Sets height and width for the image
-            //picture.Height = 100;
-            //picture.Width = 100;
             
+            
+            
+            // search for maturity Date to replace
+            this.changeText("{maturityDateData1}", DateTime.UtcNow.ToLongDateString(),wordDocument);
+            this.changeText("{maturityDateData2}", DateTime.UtcNow.ToLongDateString(), wordDocument);
+            this.changeText("{maturityDateData3}", DateTime.UtcNow.ToLongDateString(), wordDocument);
+            // search for maturity Day to replace
+            this.changeText("{maturityDayData}", "" + DateTime.UtcNow.Day, wordDocument);
+            // search for borrower name to replace
+            this.changeText("{borrowerNameData}", "Jhon Borrower", wordDocument);
+            // search for mortgage amount to replace
+            this.changeText("{mortgageAmountData}", "$250,000", wordDocument);
+            // search for property address to replace
+            this.changeText("{propertyAddressData}", "123 Centre Street., Toronto, ON", wordDocument);
+            // search for pid to replace
+            this.changeText("{pidData}", "123-456-789", wordDocument);
+            // search for crn to replace
+            this.changeText("{crnData}", "987-654-321", wordDocument);
+            // search for interest rate to replace
+            this.changeText("{interestRateData}", "6%", wordDocument);
+            // search for total number of units to replace
+            this.changeText("{totalNumberOfUnitsData}", "5", wordDocument);
+            // search for units invested to replace
+            this.changeText("{unitsInvestedData}", "1", wordDocument);
+            // search for percentage of invested data to replace
+            this.changeText("{percentageInvestedData}", "20%", wordDocument);
+            // search for trustee name data to replace
+            this.changeText("{trusteeNameData}", "The trustee name company", wordDocument);
+            // search for trustee name data to replace
+            this.changeText("{totalUnitsAmountData}", "$50,000", wordDocument);
+
+
+            //get the paragraph from the parent word document and add the signature to it
+            TextSelection adminSignature = wordDocument.Find("{sig_trustee}", false, false);
+            WTextRange signature = adminSignature.GetAsOneRange();
+            signature.Text = "";
+            //Adds image to  the paragraph
+            FileStream imageStream = new FileStream(wwwPath +"/signature_2.png", FileMode.Open, FileAccess.Read);
+            IWPicture picture = signature.OwnerParagraph.AppendPicture(imageStream);
+            //Sets height and width for the image
+            picture.Height = 75;
+            picture.Width = 200;
+
 
             //opens the doc for rendeering 
             DocIORenderer render = new DocIORenderer();
@@ -65,7 +87,7 @@ namespace TestingLibraries.Controllers
             //Saves the PDF file
             MemoryStream outputStream = new MemoryStream();
             pdfDocument.Save(outputStream);
-            using (FileStream pdfStream = System.IO.File.Create(@"c:\temp\pdfGenerated.pdf"))
+            using (FileStream pdfStream = System.IO.File.Create(@"c:\temp\syndicationInterest.pdf"))
             {
                 pdfDocument.Save(pdfStream);
             }
@@ -75,6 +97,17 @@ namespace TestingLibraries.Controllers
             pdfDocument.Close();
             return "converted Word file to pdf...";
         }
+
+        public void changeText(string key,string value,WordDocument wordDocument )
+        {
+            TextSelection keySelection = wordDocument.Find(key, false, false);
+            if (keySelection == null) 
+            {
+                return;
+            }
+            WTextRange keyTextRange = keySelection.GetAsOneRange();
+            keyTextRange.Text = value;
+        } 
 
     }
 }
