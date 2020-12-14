@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,41 +9,50 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TestingLibraries.Controllers
 {
-    public class IronPdfController : Controller
+    public class IronPdfMSIIController : Controller
     {
         private IHostingEnvironment Environment;
 
-        public IronPdfController(IHostingEnvironment _environment)
+        public IronPdfMSIIController(IHostingEnvironment _environment)
         {
             Environment = _environment;
         }
         public string Index()
         {
             var Renderer = new IronPdf.HtmlToPdf();
+
             string wwwPath = this.Environment.WebRootPath;
             string contentPath = this.Environment.ContentRootPath;
-            
 
-            var PDF = PdfDocument.FromFile(wwwPath+ "/MortgageAdministrationAgreementOriginal.pdf");
+
+            var PDF = PdfDocument.FromFile(wwwPath + "/MortgagemarketSyndicationInterestIndentureOriginal.pdf");
             var date1 = PDF.Form.GetFieldByName("date1");
             date1.Value = DateTime.UtcNow.ToLongDateString();
-            date1.SetFont(IronPdf.Forms.Enums.FontTypes.HelveticaBold);
             date1.ReadOnly = true;
 
             var date2 = PDF.Form.GetFieldByName("date2");
-            date2.Value = DateTime.UtcNow.ToLongDateString()+",";
+            date2.Value = DateTime.UtcNow.ToLongDateString() + ":";
             date2.ReadOnly = true;
 
 
             var date3 = PDF.Form.GetFieldByName("date3");
-            date3.Value = DateTime.UtcNow.Month + ","+ DateTime.UtcNow.Day +"," +DateTime.UtcNow.Year;
+            date3.Value = DateTime.UtcNow.Month + "," + DateTime.UtcNow.Day + "," + DateTime.UtcNow.Year;
             date3.ReadOnly = true;
+            var PDFs = new List<PdfDocument>();
 
-
+            var appendixPDFpage2 = PDF.CopyPage(PDF.PageCount - 1);
             PDF.RemovePage(PDF.PageCount - 1);
-            PDF.AppendPdf(Renderer.RenderHtmlAsPdf(addSignature(wwwPath+"/signature_2.png")));
-            PDF.SaveAs(@"c:\temp\irongenerated_maa.pdf");
-            return "generated with iron pdf";
+            var appendixPDFpage1 = PDF.CopyPage(PDF.PageCount - 1);
+            PDF.RemovePage(PDF.PageCount - 1);
+            PDF.RemovePage(PDF.PageCount - 1);
+            PDF.AppendPdf(Renderer.RenderHtmlAsPdf(addSignature(wwwPath + "/signature_2.png")));
+            PDFs.Add(PDF);
+            PDFs.Add(appendixPDFpage1);
+            PDFs.Add(appendixPDFpage2);
+            var newPDf = PdfDocument.Merge(PDFs);
+
+            newPDf.SaveAs(@"c:\temp\irongenerated_msii.pdf");
+            return "msii pdf generated";
         }
 
         private string addSignature(string image)
@@ -56,16 +64,15 @@ namespace TestingLibraries.Controllers
             sb.AppendFormat("<div ><div class=\"data-section-title-container mb-4\">");
             sb.AppendFormat("<p><b>IN WITNESS WHEREOF</b>&nbsp;the Parties have duly executed this Agreement as of the date first written above.</p>");
             sb.AppendFormat("</div>");
-            
-            
-            //ADMIN SIG
+
+
+            //CORP SIG
             sb.AppendFormat("<div class=\"data-section-info-column\">");
             sb.AppendFormat("<div class=\"data-section-info-container mb-4\">");
             sb.AppendFormat("<div>");
-            sb.AppendFormat("<p><b>MM ADMINISTRATION INC.</b></p>");
-            sb.AppendFormat("<p>Per:</p>");
+            sb.AppendFormat("<p><b>MORTGAGEMARKIT CORPORATION</b></p>");
             sb.AppendFormat("<div class=\"flex-line-container\">");
-            sb.AppendFormat("<img src=\""+image+"\"></img>");
+            sb.AppendFormat("<img src=\"" + image + "\"></img>");
             sb.AppendFormat("<div>");
             sb.AppendFormat("<hr class=\"solid-1  mb-0\"></hr>");
             sb.AppendFormat("</div>");
@@ -75,23 +82,40 @@ namespace TestingLibraries.Controllers
             sb.AppendFormat("</div>");
             sb.AppendFormat("</div>");
 
-            //CORP SIG
+            //TRUSTEE
             sb.AppendFormat("<div class=\"data-section-info-column\">");
             sb.AppendFormat("<div class=\"data-section-info-container mb-4\">");
-                sb.AppendFormat("<div>");
-                sb.AppendFormat("<p><b>MM Corporation</b></p>");
-                sb.AppendFormat("<p>Per:</p>");
-                sb.AppendFormat("<div class=\"flex-line-container\">");
-                sb.AppendFormat("<img src=\"" + image + "\"></img>");
-                sb.AppendFormat("<div>");
-                sb.AppendFormat("<hr class=\"solid-1  mb-0\"></hr>");
-                sb.AppendFormat("</div>");
-                sb.AppendFormat("</div>");
-                sb.AppendFormat("<p>Name:</p>");
-                sb.AppendFormat("<p>Title:</p>");
-                sb.AppendFormat("</div>");
-
+            sb.AppendFormat("<div>");
+            sb.AppendFormat("<p><b>MM TRUSTEE INC.</b></p>");
+            sb.AppendFormat("<div class=\"flex-line-container\">");
+            sb.AppendFormat("<img src=\"" + image + "\"></img>");
+            sb.AppendFormat("<div>");
+            sb.AppendFormat("<hr class=\"solid-1  mb-0\"></hr>");
             sb.AppendFormat("</div>");
+            sb.AppendFormat("</div>");
+            sb.AppendFormat("<p>Name:</p>");
+            sb.AppendFormat("<p>Title:</p>");
+            sb.AppendFormat("</div>");
+            sb.AppendFormat("</div>");
+
+
+            //ADMINISTRATION
+            sb.AppendFormat("<div class=\"data-section-info-column\">");
+            sb.AppendFormat("<div class=\"data-section-info-container mb-4\">");
+            sb.AppendFormat("<div>");
+            sb.AppendFormat("<p><b>MM ADMINISTRATION</b></p>");
+            sb.AppendFormat("<div class=\"flex-line-container\">");
+            sb.AppendFormat("<img src=\"" + image + "\"></img>");
+            sb.AppendFormat("<div>");
+            sb.AppendFormat("<hr class=\"solid-1  mb-0\"></hr>");
+            sb.AppendFormat("</div>");
+            sb.AppendFormat("</div>");
+            sb.AppendFormat("<p>Name:</p>");
+            sb.AppendFormat("<p>Title:</p>");
+            sb.AppendFormat("</div>");
+            sb.AppendFormat("</div>");
+
+
 
             sb.AppendFormat("</div><body></html>");
             return sb.ToString();
